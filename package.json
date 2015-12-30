@@ -1,0 +1,38 @@
+{
+  "name": "mongo-listener",
+  "version": "0.0.1",
+  "description": "Mongo OpLog Listener",
+  "main": "./src/main",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benjamine/mongo-listener.git"
+  },
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "gulp test",
+    "bump": "gulp bump",
+    "cover": "istanbul cover --root src gulp test",
+    "cover-report": "open coverage/lcov-report/index.html",
+    "cover-publish": "istanbul cover _mocha --report lcovonly && codeclimate < coverage/lcov.info"
+  },
+  "author": "Benjamin Eidelman <beneidel@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "bulk-require": "^0.2.1",
+    "codeclimate-test-reporter": "0.0.3",
+    "expect.js": "~0.3.1",
+    "fiberglass": "0.0.22",
+    "growl": "^1.8.1",
+    "gulp": "^3.8.8",
+    "istanbul": "^0.3.2"
+  },
+  "dependencies": {
+    "bson-timestamp": "^0.1.2",
+    "lodash": "^3.10.1",
+    "mongo-cursor-processing": "^1.0.0",
+    "mongo-oplog": "^1.0.1",
+    "mongodb": "2.0.50",
+    "mongoskin": "^2.0.3",
+    "redis": "^2.4.2"
+  }
+}

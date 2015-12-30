@@ -1,0 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/benjamine/mongo-listener.png)](http://travis-ci.org/benjamine/mongo-listener)
+[![Code Climate](https://codeclimate.com/github/benjamine/mongo-listener/badges/gpa.svg)](https://codeclimate.com/github/benjamine/mongo-listener)
+[![Test Coverage](https://codeclimate.com/github/benjamine/mongo-listener/badges/coverage.svg)](https://codeclimate.com/github/benjamine/mongo-listener)
+[![NPM version](https://badge.fury.io/js/product-catalog-listener.png)](http://badge.fury.io/js/product-catalog-listener)
+[![NPM dependencies](https://david-dm.org/benjamine/mongo-listener.png)](https://david-dm.org/benjamine/mongo-listener)
