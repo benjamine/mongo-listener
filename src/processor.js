@@ -11,7 +11,7 @@ class Processor {
     if (!this.options.logger) {
       return;
     }
-    this.options.logger.log.apply(this.options.logger, arguments);
+    this.options.logger.log.apply(this.options.logger, Array.prototype.slice.call(arguments));
   }
 
   setDocGetter(docGetter) {

@@ -2,8 +2,8 @@
 module.exports = {
   skipFullUpsert: !/^(false|no|0)$/i.test(process.env.SKIP_FULL_UPSERT),
   logger: {
-    log: function() {
-      console.log.apply(console, arguments);
+    log() {
+      console.log.apply(console, Array.prototype.slice.call(arguments));
     }
   },
   mongo: {
