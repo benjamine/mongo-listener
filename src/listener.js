@@ -92,7 +92,8 @@ class Listener {
     }
     var port = this.options.http.port;
     this.httpServer = http.createServer(function(req, res){
-      res.send('Hi!, I\'m the product catalog listener');
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.write('Hi!, I\'m a mongo listener');
       res.end();
     });
     this.httpServer.listen(port);
