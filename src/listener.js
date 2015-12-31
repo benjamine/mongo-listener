@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var os = require('os');
 var http = require('http');
 var _ = require('lodash');
 var mongo = require('mongoskin');
@@ -21,22 +22,30 @@ class Listener {
     });
   }
 
+  log() {
+    if (!this.options.logger) {
+      return;
+    }
+    this.options.logger.log.apply(this.options.logger, arguments);
+  }
+
   start() {
     var options = { ns: this.options.mongo.db + '.' + this.options.mongo.collection };
     this.getLastOpTimestamp((err, since) => {
       if (err) {
-        console.log('error reading lastop: ' + err);
+        this.log(new Error('error reading lastop: ' + err));
       }
       if (since) {
         options.since = since;
       }
       if (options.since) {
-        console.log('resuming from timestamp ' + since);
+        this.log('info', 'resuming from timestamp ' + since);
       } else {
-        console.log('unable to determine last op');
         if (!this.options.skipFullUpsert) {
-          console.log('unable to determine last op, processing entire collection...');
+          this.log('info', 'unable to determine last op, processing entire collection...');
           this.processEntireCollection();
+        } else {
+          this.log('info', 'unable to determine last op');
         }
       }
 
@@ -48,8 +57,8 @@ class Listener {
         }
         this.processor.processOp(data, (err) => {
           if (err) {
-            console.error('error processing op:', data);
-            console.error(err);
+            this.log(new Error('error processing op:', data));
+            this.log(err);
           }
         });
         if (data && data.ts) {
@@ -58,15 +67,15 @@ class Listener {
       });
 
       oplog.on('error', (error) => {
-        console.error(error);
+        this.log(error);
       });
 
       oplog.on('end', () => {
-        console.log('Stream ended');
+        this.log('warning', 'stream ended');
       });
 
       oplog.stop(() => {
-        console.log('server stopped');
+        this.log('warning', 'server stopped');
       });
 
       oplog.tail();
@@ -76,6 +85,7 @@ class Listener {
   }
 
   setLastOpTimestamp(ts) {
+    this.lastOp = ts;
     if (this.options.redisLastOp) {
       if (!this.redisClient) {
         this.redisClient = redis.createClient(this.options.redisLastOp.url);
@@ -91,13 +101,21 @@ class Listener {
       return;
     }
     var port = this.options.http.port;
-    this.httpServer = http.createServer(function(req, res){
+    this.httpServer = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.write('Hi!, I\'m a mongo listener');
+      var data = {
+        db: this.options.mongo.db,
+        collection: this.options.mongo.collection,
+        memoryUsage: process.memoryUsage(),
+        loadavg: os.loadavg(),
+        lastOp: this.lastOp || 'unknown',
+        queueSize: this.processor.processQueue.length
+      };
+      res.write(JSON.stringify(data, null, 2));
       res.end();
     });
     this.httpServer.listen(port);
-    console.log('server listening at http://localhost:' + port);
+    this.log('server listening at http://localhost:' + port);
   }
 
   getLastOpTimestamp(done) {
@@ -107,7 +125,7 @@ class Listener {
         try {
           ts = Timestamp.fromString(fs.readFileSync('lastop.json').toString());
         } catch(err) {
-          console.error('error reading lastop file', err.toString());
+          this.log(new Error('error reading lastop file: ' + err.toString()));
         }
       }
       done(null, ts);
@@ -118,7 +136,7 @@ class Listener {
         if (!this.redisClient) {
           this.redisClient = redis.createClient(this.options.redisLastOp.url);
           this.redisClient.on('error', (err) => {
-            console.error('Redis client error', err.toString());
+            this.log(new Error('Redis client error: ' + err.toString()));
           });
         }
         this.redisClient.get(this.options.redisLastOp.key, (err, value) => {
@@ -129,7 +147,7 @@ class Listener {
             try {
               ts = Timestamp.fromString(value.toString());
             } catch(err) {
-              console.error('error reading lastop redis key', err.toString());
+              this.log(new Error('error reading lastop redis key: ' + err.toString()));
             }
           }
           done(null, ts);
@@ -140,7 +158,7 @@ class Listener {
       }
     }
 
-    readFromFile();
+    readFromFile.call(this);
   }
 
   collection() {
@@ -172,11 +190,11 @@ class Listener {
     var concurrency = this.options.maxBatchSize || 5000;
     mongoCursorProcessing(cursor, processDocument, concurrency, (err) => {
       if (err) {
-        console.error('error processing entire collection', err);
+        this.log(new Error('error processing entire collection: ' + err.toString()));
         process.exit(1);
       }
       var elapsedSeconds = Math.round((new Date().getTime() - startTime)/1000);
-      console.log('entire collection processed (' + count + ' documents, ' +
+      this.log('info', 'entire collection processed (' + count + ' documents, ' +
         Math.floor(elapsedSeconds / 60) + 'm' +
         elapsedSeconds % 60 + 's).');
       if (db) {

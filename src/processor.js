@@ -8,9 +8,10 @@ class Processor {
   }
 
   log() {
-    if (this.options.logger) {
-      this.options.logger.log.apply(this.options.logger, arguments);
+    if (!this.options.logger) {
+      return;
     }
+    this.options.logger.log.apply(this.options.logger, arguments);
   }
 
   setDocGetter(docGetter) {
@@ -26,11 +27,11 @@ class Processor {
       var id = (op.o2 || op.o)._id;
       var filteredUpdate = this.filterOp(op);
       if (!filteredUpdate) {
-        console.log('partial update, after filtering, skipping:', id, op.o);
+        this.log('partial update, after filtering, skipping', id, op.o);
         return done();
       }
       // read full doc from db
-      console.log('partial update:', op.o, ', reading full doc from db:', id);
+      this.log('partial update:', op.o, ', reading full doc from db:', id);
       return this.readFullDoc(id, (err, doc) => {
         if (err) {
           return done(err);
@@ -56,16 +57,16 @@ class Processor {
   processDoc(doc, fullUpserting, done) {
     var filtered = this.filter(doc);
     if (!filtered) {
-      console.log('after filtering, no update needed');
+      this.log('after filtering, no update needed');
       return;
     }
     var transformed = this.transform(filtered);
     if (!transformed) {
-      console.log('after transforming, no update needed');
+      this.log('after transforming, no update needed');
       return;
     }
     if (!fullUpserting) {
-      console.log('upserting', transformed._id);
+      this.log('upserting', transformed._id);
     }
     return this.upsert(transformed, done);
   }
@@ -150,7 +151,7 @@ class Processor {
     try {
       return this.options.transform(doc);
     } catch(err) {
-      console.error('transform error: ', err);
+      this.log(new Error('transform error: ' + err.toString()));
       return {
         _id: id,
         processingFailed: true,

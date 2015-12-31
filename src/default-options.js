@@ -1,6 +1,11 @@
 
 module.exports = {
   skipFullUpsert: !/^(false|no|0)$/i.test(process.env.SKIP_FULL_UPSERT),
+  logger: {
+    log: function() {
+      console.log.apply(console, arguments);
+    }
+  },
   mongo: {
     uri: process.env.MONGO_URL,
     uriEntireCollectionRead: process.env.MONGO_FULL_READ_URL,
