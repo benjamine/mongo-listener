@@ -1,6 +1,6 @@
 {
   "name": "mongo-listener",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Mongo OpLog Listener",
   "main": "./src/main",
   "repository": {
