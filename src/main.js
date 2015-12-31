@@ -1,7 +1,6 @@
 'use strict';
 // global exports
 
-exports.app = require('./app');
 var Listener = require('./listener');
 exports.Listener = Listener;
 exports.create = function(options) {

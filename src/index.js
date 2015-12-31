@@ -1,4 +1,4 @@
 'use strict';
-var AppContainer = require('./app');
-new AppContainer().start();
+var Listener = require('./listener');
+new Listener().start();
 console.log('started');

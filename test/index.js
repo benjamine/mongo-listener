@@ -10,7 +10,7 @@ describe('mongoListener', function(){
     this.options = {
       skipFullUpsert: true
     };
-    this.listener = new mongoListener.Listener(this.options);
+    this.listener = new mongoListener.create(this.options);
   });
   it('has a semver version', function(){
     expect(mongoListener.version).to.match(/^\d+\.\d+\.\d+(-.*)?$/);
@@ -34,9 +34,6 @@ describe('mongoListener', function(){
   });
 
   describe('processing a doc', function(){
-    it('removes styles if product is not visible');
-    it('groups variants by price');
-    it('calculates scores for sorting');
   });
 
   describe('multiple consecutive upserts', function(){

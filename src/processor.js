@@ -7,6 +7,12 @@ class Processor {
     this.processQueue = [];
   }
 
+  log() {
+    if (this.options.logger) {
+      this.options.logger.log.apply(this.options.logger, arguments);
+    }
+  }
+
   setDocGetter(docGetter) {
     this.docGetter = docGetter;
   }
